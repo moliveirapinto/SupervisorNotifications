@@ -132,6 +132,39 @@
   .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); transition: background 0.15s, border-color 0.15s, color 0.15s; }
   .btn-ghost:hover { background: #f0f0f0; border-color: #c0c0c0; color: var(--text); }
 
+  /* Image source tabs */
+  .img-source-tabs { display: flex; gap: 0; margin-bottom: 8px; }
+  .img-tab {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: #fafafa;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .img-tab:first-child { border-radius: 6px 0 0 6px; }
+  .img-tab:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+  .img-tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .img-tab:not(.active):hover { background: #f0f0f0; }
+  .img-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 13px;
+  }
+  .img-upload-area:hover { border-color: #2563eb; background: #f8faff; }
+  .img-upload-area.drag-over { border-color: #2563eb; background: #eff6ff; }
+
   /* Table */
   .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
   table {
@@ -1089,8 +1122,30 @@
       <textarea id="nfMessage" rows="5" maxlength="10000" placeholder="Write the notification message..."></textarea>
     </div>
     <div class="form-group">
-      <label>Image URL (optional)</label>
-      <input type="text" id="nfImageUrl" maxlength="2000" placeholder="https://example.com/image.png" />
+      <label>Image (optional)</label>
+      <div class="img-source-tabs">
+        <button type="button" class="img-tab active" onclick="switchImgTab('url')">URL</button>
+        <button type="button" class="img-tab" onclick="switchImgTab('upload')">Upload</button>
+      </div>
+      <div id="imgTabUrl">
+        <input type="text" id="nfImageUrl" maxlength="2000" placeholder="https://example.com/image.png" />
+      </div>
+      <div id="imgTabUpload" style="display:none">
+        <div class="img-upload-area" id="imgDropZone" onclick="document.getElementById('nfImageFile').click()">
+          <input type="file" id="nfImageFile" accept="image/png,image/jpeg,image/gif,image/svg+xml" style="display:none" onchange="handleImageFile(this)" />
+          <div id="imgUploadPlaceholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Click or drag an image here</span>
+            <span style="font-size:11px;color:#b0b0b0">PNG, JPG, GIF, SVG • Max 5 MB</span>
+          </div>
+          <div id="imgUploadPreview" style="display:none">
+            <img id="imgPreviewThumb" style="max-width:100%;max-height:120px;border-radius:6px" />
+            <div id="imgFileName" style="font-size:12px;color:#605e5c;margin-top:6px"></div>
+          </div>
+        </div>
+        <div id="imgUploadStatus" style="display:none;font-size:12px;margin-top:6px"></div>
+        <button type="button" id="imgRemoveBtn" style="display:none;margin-top:6px;font-size:12px;color:#dc2626;background:none;border:none;cursor:pointer;text-decoration:underline" onclick="clearImageUpload()">Remove image</button>
+      </div>
     </div>
     <div style="display:flex;gap:12px">
       <div class="form-group" style="flex:2">
@@ -1762,6 +1817,7 @@ function renderNotifications() {
             html += '<button class="btn btn-sm btn-ghost" style="font-size:11px" onclick="cancelSchedule(\'' + id + '\')">Cancel</button>';
         } else {
             html += '<button class="btn btn-sm btn-ghost" onclick="viewNotifDetails(\'' + id + '\')">Details</button>';
+            html += '<button class="btn btn-sm btn-ghost" style="margin-left:4px" onclick="cloneNotification(\'' + id + '\')">Clone</button>';
         }
         html += "</td></tr>";
     });
@@ -1769,6 +1825,35 @@ function renderNotifications() {
 }
 
 // Notification Modal
+function cloneNotification(id) {
+    var n = notifications.find(function (x) { return x.maulabs_supervisornotificationid === id; });
+    if (!n) { toast("Notification not found.", true); return; }
+    editingNotifId = null; // new record
+    scheduleMode = false;
+    document.getElementById("scheduleGroup").style.display = "none";
+    var btnSch = document.getElementById("btnSchedule");
+    btnSch.textContent = "Schedule";
+    btnSch.onclick = function () { handleSchedule(); };
+
+    document.getElementById("notifModalTitle").textContent = "Clone Notification";
+    document.getElementById("nfTitle").value = n.maulabs_title || "";
+    document.getElementById("nfCategory").value = n._maulabs_categoryid_value || "";
+    document.getElementById("nfPriority").value = String(n.maulabs_priority || 0);
+    document.getElementById("nfMessage").value = n.maulabs_message || "";
+    document.getElementById("nfImageUrl").value = n.maulabs_imageurl || "";
+    document.getElementById("nfLinkUrl").value = n.maulabs_linkurl || "";
+    document.getElementById("nfLinkText").value = n.maulabs_linktext || "";
+    selectedQueueIds = [];
+    if (n.maulabs_targetqueue) {
+        selectedQueueIds = n.maulabs_targetqueue.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+    updateQueueDisplay();
+    clearImageUpload();
+    switchImgTab('url');
+    document.getElementById("nfScheduledOn").value = "";
+    document.getElementById("notifModal").classList.add("active");
+}
+
 function openNotifModal(id) {
     editingNotifId = id || null;
     scheduleMode = false;
@@ -1799,12 +1884,113 @@ function openNotifModal(id) {
     document.getElementById("notifModal").classList.add("active");
 }
 
+// Image Upload
+var uploadedImageUrl = null;
+var activeImgTab = 'url';
+
+function switchImgTab(tab) {
+    activeImgTab = tab;
+    document.querySelectorAll('.img-tab').forEach(function (t) { t.classList.remove('active'); });
+    document.querySelector('.img-tab[onclick*="' + tab + '"]').classList.add('active');
+    document.getElementById('imgTabUrl').style.display = tab === 'url' ? '' : 'none';
+    document.getElementById('imgTabUpload').style.display = tab === 'upload' ? '' : 'none';
+}
+
+function handleImageFile(input) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast("Image must be under 5 MB.", true); input.value = ''; return; }
+
+    var EXT_MAP = { 'image/png': { ext: 'png', type: 5 }, 'image/jpeg': { ext: 'jpg', type: 6 }, 'image/gif': { ext: 'gif', type: 7 }, 'image/svg+xml': { ext: 'svg', type: 10 } };
+    var info = EXT_MAP[file.type];
+    if (!info) { toast("Unsupported image type.", true); input.value = ''; return; }
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        // Show preview
+        document.getElementById('imgUploadPlaceholder').style.display = 'none';
+        document.getElementById('imgUploadPreview').style.display = '';
+        document.getElementById('imgPreviewThumb').src = e.target.result;
+        document.getElementById('imgFileName').textContent = file.name;
+        document.getElementById('imgRemoveBtn').style.display = '';
+
+        // Upload as web resource
+        var base64 = e.target.result.split(',')[1];
+        var resName = 'maulabs_notif_img_' + Date.now();
+        var statusEl = document.getElementById('imgUploadStatus');
+        statusEl.style.display = '';
+        statusEl.style.color = '#2563eb';
+        statusEl.textContent = 'Uploading...';
+
+        var body = {
+            name: resName,
+            displayname: 'Notification Image - ' + file.name,
+            content: base64,
+            webresourcetype: info.type
+        };
+
+        apiCallAsync("POST", "/api/data/v9.2/webresourceset", body, {
+            "Prefer": "return=representation"
+        }).then(function (xhr) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                var data = JSON.parse(xhr.responseText);
+                uploadedImageUrl = '/WebResources/' + resName;
+                statusEl.style.color = '#059669';
+                statusEl.textContent = 'Uploaded successfully';
+                // Publish the web resource
+                var publishXml = '<importexportxml><webresources><webresource>{' + data.webresourceid + '}</webresource></webresources></importexportxml>';
+                apiCallAsync("POST", "/api/data/v9.2/PublishXml", { ParameterXml: publishXml });
+            } else {
+                statusEl.style.color = '#dc2626';
+                statusEl.textContent = 'Upload failed: ' + (xhr.responseText || xhr.status);
+            }
+        }).catch(function (err) {
+            statusEl.style.color = '#dc2626';
+            statusEl.textContent = 'Upload error';
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImageUpload() {
+    uploadedImageUrl = null;
+    document.getElementById('nfImageFile').value = '';
+    document.getElementById('imgUploadPlaceholder').style.display = '';
+    document.getElementById('imgUploadPreview').style.display = 'none';
+    document.getElementById('imgUploadStatus').style.display = 'none';
+    document.getElementById('imgRemoveBtn').style.display = 'none';
+}
+
+// Drag-and-drop
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var dz = document.getElementById('imgDropZone');
+        if (!dz) return;
+        dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('drag-over'); });
+        dz.addEventListener('dragleave', function () { dz.classList.remove('drag-over'); });
+        dz.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dz.classList.remove('drag-over');
+            var file = e.dataTransfer.files[0];
+            if (file) {
+                var input = document.getElementById('nfImageFile');
+                var dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                handleImageFile(input);
+            }
+        });
+    });
+})();
+
 function closeNotifModal() {
     document.getElementById("notifModal").classList.remove("active");
     document.getElementById("queueDropdown").classList.remove("open");
     editingNotifId = null;
     scheduleMode = false;
     selectedQueueIds = [];
+    clearImageUpload();
+    switchImgTab('url');
 }
 
 function getNotifFormData() {
@@ -1819,7 +2005,7 @@ function getNotifFormData() {
         maulabs_title: title,
         maulabs_message: message,
         maulabs_priority: parseInt(document.getElementById("nfPriority").value, 10),
-        maulabs_imageurl: document.getElementById("nfImageUrl").value.trim() || null,
+        maulabs_imageurl: (activeImgTab === 'upload' && uploadedImageUrl) ? uploadedImageUrl : (document.getElementById("nfImageUrl").value.trim() || null),
         maulabs_linkurl: document.getElementById("nfLinkUrl").value.trim() || null,
         maulabs_linktext: document.getElementById("nfLinkText").value.trim() || null,
         maulabs_targetqueue: selectedQueueIds.length ? selectedQueueIds.join(',') : null
@@ -2655,6 +2841,7 @@ function renderReportDetail(notifId) {
     var html = '';
     html += '<div class="detail-header">';
     html += '<button class="dash-back-btn" onclick="showReportsDashboard()">\u2190 Back</button>';
+    html += '<button class="dash-back-btn" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe" onclick="cloneNotification(\'' + esc(notif.maulabs_supervisornotificationid) + '\');switchTab(\'notifications\')">Clone</button>';
     html += '<div style="flex:1"><h3 style="margin:0">' + esc(notif.maulabs_title) + '</h3>';
     html += '<div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
     if (cat) html += '<span class="category-badge" style="background:' + esc(cat.maulabs_color) + '">' + esc(cat.maulabs_emoji) + ' ' + esc(cat.maulabs_name) + '</span>';
