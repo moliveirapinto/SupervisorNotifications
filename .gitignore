@@ -1,3 +1,5 @@
 node_modules/
 .msal-cache.json
 *.zip
+auth.js
+publish-solution.js
