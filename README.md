@@ -175,8 +175,6 @@ Defines notification categories.
 
 5. **Publish all customizations** — after the import completes, click **Publish all customizations** in the command bar to make all components active
 
-6. **Register the poller** on form `OnLoad` events for any entity forms where agents work (e.g., Case, Contact, Account). The poller uses a singleton pattern — registering on multiple forms is safe and will not create duplicate timers
-
 ---
 
 ## Add to the Sitemap (Admin Center)
