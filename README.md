@@ -193,8 +193,8 @@ After importing the solution, create a menu item so supervisors can access the N
    - Click **+ Add page**
    - In the **Add page** dialog, select **Web Resource**
    - Click **Next**
-   - Search for and select **`new_NotificationCenter`**
-   - Set the **Title** to `Notification Center` (or your preferred label)
+   - Search for **`NotificationCenter`** (the display name of the web resource)
+   - Select it and set the **Title** to `Notification Center` (or your preferred label)
    - Click **Add**
 
 4. **Set the icon**:
