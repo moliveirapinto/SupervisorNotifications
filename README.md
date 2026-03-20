@@ -17,7 +17,7 @@ A real-time notification system for **Dynamics 365** that enables supervisors to
 - [How It Works](#how-it-works)
 - [Solution Components](#solution-components)
 - [Entities](#entities)
-- [Installation](#installation)
+- 🚀 **[Installation](#installation)**
 - [Add to the Sitemap (Admin Center)](#add-to-the-sitemap-admin-center)
 - [Usage Guide](#usage-guide)
   - [Creating Notifications](#creating-notifications)
