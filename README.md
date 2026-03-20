@@ -1,4 +1,4 @@
-# Supervisor Notification Center
+# Notification Center
 
 A real-time notification system for **Dynamics 365** that enables supervisors to create, schedule, and send notifications directly to agents — with acknowledgment tracking, category management, and analytics.
 
