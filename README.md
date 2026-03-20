@@ -18,6 +18,7 @@ A real-time notification system for **Dynamics 365** that enables supervisors to
 - [Solution Components](#solution-components)
 - [Entities](#entities)
 - [Installation](#installation)
+- [Add to the Sitemap (Admin Center)](#add-to-the-sitemap-admin-center)
 - [Usage Guide](#usage-guide)
   - [Creating Notifications](#creating-notifications)
   - [Managing Categories](#managing-categories)
@@ -156,17 +157,57 @@ Defines notification categories.
 
 ### Steps
 
-1. **Create the three entities** listed above in your D365 environment using the `maulabs` publisher prefix
+1. **Download** the latest solution zip file from the [Releases](../../releases) page
 
-2. **Upload the web resources** to your D365 environment:
-   - `NotificationPoller.js` → JavaScript web resource (`maulabs_/scripts/NotificationPoller.js`)
-   - `new_NotificationCenter.htm` → HTML web resource (`new_NotificationCenter`)
-   - `new_NotificationAlert.htm` → HTML web resource (`new_NotificationAlert`)
-   - Upload the three SVG icon files as web resources
+2. **Go to** [Power Apps](https://make.powerapps.com) and select your target environment
 
-3. **Register the poller** on form `OnLoad` events for any entity forms where agents work (e.g., Case, Contact, Account). The poller uses a singleton pattern — registering on multiple forms is safe and will not create duplicate timers
+3. **Navigate to Solutions** — click **Solutions** in the left navigation pane
 
-4. **Open the Notification Center** by navigating to the `new_NotificationCenter` web resource URL in your environment
+4. **Import the solution**:
+   - Click **Import solution** in the command bar
+   - Click **Browse** and select the downloaded `.zip` file
+   - Click **Next**
+   - Review the solution details and click **Import**
+   - Wait for the import to complete — you will see a success notification
+
+5. **Publish all customizations** — after the import completes, click **Publish all customizations** in the command bar to make all components active
+
+6. **Register the poller** on form `OnLoad` events for any entity forms where agents work (e.g., Case, Contact, Account). The poller uses a singleton pattern — registering on multiple forms is safe and will not create duplicate timers
+
+---
+
+## Add to the Sitemap (Admin Center)
+
+After importing the solution, create a menu item so supervisors can access the Notification Center directly from the D365 navigation.
+
+1. **Go to** [Power Apps](https://make.powerapps.com) and select your environment
+
+2. **Open the App Designer**:
+   - Click **Apps** in the left navigation pane
+   - Find the model-driven app you want to add the menu item to (e.g., **Customer Service Hub** or your custom app)
+   - Click the **...** (More options) menu next to the app and select **Edit** to open the App Designer
+
+3. **Edit the Sitemap**:
+   - In the App Designer, click the **Navigation** tab (pencil icon on the sitemap area)
+   - Choose the **Area** and **Group** where you want the menu item to appear (e.g., under **Service** or create a new group)
+
+4. **Add a new Subarea**:
+   - Click **+ Add** → **Subarea**
+   - Configure the subarea properties:
+     - **Content Type**: Web Resource
+     - **URL**: `new_NotificationCenter`
+     - **Title**: `Notification Center` (or your preferred label)
+
+5. **Set the icon**:
+   - In the subarea properties, look for the **Icon** field
+   - Select **Use a web resource**
+   - Search for and select: **`ic_fluent_alert_on_24_regular`** — this Fluent UI alert icon is included in the solution
+
+6. **Save and Publish**:
+   - Click **Save** in the App Designer
+   - Click **Publish** to make the changes live
+
+Supervisors will now see the **Notification Center** menu item in the D365 left navigation and can access it directly.
 
 ---
 
