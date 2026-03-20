@@ -99,6 +99,9 @@ The solution is fully portable — no hardcoded environment values. All API call
 
 | Component | D365 Name | Type | Purpose |
 |-----------|-----------|------|---------|
+| Supervisor Notification | `maulabs_supervisornotification` | Table (Entity) | Stores notifications created by supervisors — title, message, priority, status, scheduling, and targeting |
+| Notification Ack | `maulabs_notificationack` | Table (Entity) | Tracks agent acknowledgments with timestamps |
+| Notification Category | `maulabs_notificationcategory` | Table (Entity) | Defines notification categories with emoji icons and colors |
 | Notification Center | `new_NotificationCenter` | HTML Web Resource | Supervisor admin interface — create, manage, and analyze notifications |
 | Notification Alert | `new_NotificationAlert` | HTML Web Resource | Agent-facing popup showing full notification content with acknowledge button |
 | Notification Poller | `maulabs_/scripts/NotificationPoller.js` | JS Web Resource | Background polling script — shows global banners on all D365 pages |
