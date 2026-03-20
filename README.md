@@ -188,23 +188,22 @@ After importing the solution, create a menu item so supervisors can access the N
    - Find the model-driven app you want to add the menu item to (e.g., **Customer Service Admin Center** or any other app)
    - Click the **...** (More options) menu next to the app and select **Edit** to open the App Designer
 
-3. **Edit the Sitemap**:
-   - In the App Designer, click the **Navigation** tab (pencil icon on the sitemap area)
-   - Choose the **Area** and **Group** where you want the menu item to appear (e.g., under **Service** or create a new group)
+3. **Add a new page**:
+   - In the App Designer navigation pane, select the **Group** where you want the page to appear (e.g., under an existing group or create a new one)
+   - Click **+ Add page**
+   - In the **Add page** dialog, select **Web Resource**
+   - Click **Next**
+   - Search for and select **`new_NotificationCenter`**
+   - Set the **Title** to `Notification Center` (or your preferred label)
+   - Click **Add**
 
-4. **Add a new Subarea**:
-   - Click **+ Add** → **Subarea**
-   - Configure the subarea properties:
-     - **Content Type**: Web Resource
-     - **URL**: `new_NotificationCenter`
-     - **Title**: `Notification Center` (or your preferred label)
-
-5. **Set the icon**:
-   - In the subarea properties, look for the **Icon** field
+4. **Set the icon**:
+   - Select the newly added **Notification Center** page in the navigation pane
+   - In the properties panel on the right, look for the **Icon** setting
    - Select **Use a web resource**
    - Search for and select: **`ic_fluent_alert_on_24_regular`** — this Fluent UI alert icon is included in the solution
 
-6. **Save and Publish**:
+5. **Save and Publish**:
    - Click **Save** in the App Designer
    - Click **Publish** to make the changes live
 
