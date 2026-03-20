@@ -102,7 +102,7 @@ The solution is fully portable — no hardcoded environment values. All API call
 | Supervisor Notification | `maulabs_supervisornotification` | Table (Entity) | Stores notifications created by supervisors — title, message, priority, status, scheduling, and targeting |
 | Notification Ack | `maulabs_notificationack` | Table (Entity) | Tracks agent acknowledgments with timestamps |
 | Notification Category | `maulabs_notificationcategory` | Table (Entity) | Defines notification categories with emoji icons and colors |
-| Notification Center | `new_NotificationCenter` | HTML Web Resource | Supervisor admin interface — create, manage, and analyze notifications |
+| Notification Center Admin | `new_NotificationCenter` | HTML Web Resource | Supervisor admin interface — create, manage, and analyze notifications |
 | Notification Alert | `new_NotificationAlert` | HTML Web Resource | Agent-facing popup showing full notification content with acknowledge button |
 | Notification Poller | `maulabs_/scripts/NotificationPoller.js` | JS Web Resource | Background polling script — shows global banners on all D365 pages |
 | Alert icon | `maulabs_ic_fluent_alert_on_24_regular` | SVG Web Resource | Fluent UI alert icon |
@@ -193,7 +193,7 @@ After importing the solution, create a menu item so supervisors can access the N
    - Click **+ Add page**
    - In the **Add page** dialog, select **Web Resource**
    - Click **Next**
-   - Search for **`NotificationCenter`** (the display name of the web resource)
+   - Search for **`Notification Center Admin`**
    - Select it and set the **Title** to `Notification Center` (or your preferred label)
    - Click **Add**
 
